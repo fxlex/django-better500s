@@ -1,7 +1,6 @@
 import datetime
 import logging
 
-from django.utils import simplejson
 from django.core.mail import mail_admins
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
@@ -19,6 +18,17 @@ try:
     import telegram
 except:
     telegram = None
+
+try:
+    import simplejson as json
+except ImportError:
+    try:
+        import json
+    except ImportError:
+        try:
+            from django.utils import simplejson as json
+        except:
+            raise "Requires either simplejson, Python 2.6 or django.utils!"    
 
 
 def create_caught_error(request, epoch, traceback, subject_prefix=""):
@@ -48,7 +58,7 @@ def ajax_error_save(request):
             create_caught_error(request, epoch, simple_traceback)
     except:
         print exception_string()
-            
+
     return HttpResponse(simplejson.dumps({"success": True}))
 
 @csrf_exempt
@@ -59,7 +69,7 @@ def user_error_submit(request):
             error_obj.user_notes = request.POST['user_notes']
             error_obj.save()
             detail_page_url = request.build_absolute_uri(error_obj.view_url)
-            
+
             subject = " User Bug Report - %s" % (error_obj)
             body = render_to_string("better500s/error_with_notes_email.txt", locals(), context_instance=RequestContext(request))
             mail_admins(subject, body, fail_silently=True)
@@ -75,15 +85,15 @@ def user_error_submit(request):
 
     except:
         pass
-    
+
     return render_to_response('better500s/feedback_saved.html',locals(), context_instance=RequestContext(request))
 
 def view_error(request, error_id):
     error_obj = CaughtError.objects.get(pk=error_id)
-    
+
     return render_to_response('better500s/view_error.html',locals(), context_instance=RequestContext(request))
 
 def traceback_source(request, error_id):
     error_obj = CaughtError.objects.get(pk=error_id)
-    
+
     return render_to_response('better500s/traceback.html',locals(), context_instance=RequestContext(request))
