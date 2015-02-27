@@ -28,7 +28,7 @@ except ImportError:
         try:
             from django.utils import simplejson as json
         except:
-            raise "Requires either simplejson, Python 2.6 or django.utils!"    
+            raise "Requires either simplejson, Python 2.6 or django.utils!"
 
 
 def create_caught_error(request, epoch, traceback, subject_prefix=""):
@@ -59,7 +59,7 @@ def ajax_error_save(request):
     except:
         print exception_string()
 
-    return HttpResponse(simplejson.dumps({"success": True}))
+    return HttpResponse(json.dumps({"success": True}))
 
 @csrf_exempt
 def user_error_submit(request):
